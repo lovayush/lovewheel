@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Dare Wheel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Fredoka+One&display=swap');
+        
+        :root {
+            --couple: #FF6B8B;
+            --friends: #4CC9F0;
+            --fwb: #F72585;
+            --married: #7209B7;
+            --lgbtq: #8338EC;
+            --boys: #3A86FF;
+            --dare: #FFBE0B;
+            --single: #06D6A0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #614385, #516395);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        /* Magical Particles Background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            filter: blur(1px);
+            animation: float 15s linear infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-20vh) scale(1); opacity: 0; }
+        }
+        
+        /* Glowing Title */
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, #FF6B8B, #8338EC, #3A86FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin: 2rem 0;
+            position: relative;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255,107,139,0.5); }
+            to { text-shadow: 0 0 20px rgba(131,56,236,0.7), 0 0 30px rgba(58,134,255,0.5); }
+        }
+        
+        /* Category Buttons - Fancy Glassmorphism */
+        .category-selector {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            max-width: 900px;
+            padding: 0 1rem;
+        }
+        
+        .category-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            min-width: 140px;
+            color: white;
+            backdrop-filter: blur(5px);
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .category-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--color1), var(--color2));
+            z-index: -1;
+            opacity: 0.8;
+            transition: all 0.4s ease;
+        }
+        
+        .category-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 20px rgba(0,0,0,0.3);
+        }
+        
+        .category-btn.selected {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(0,0,0,0.4);
+            z-index: 2;
+        }
+        
+        /* Individual button colors */
+        .category-btn[data-category="couple"]::before { --color1: var(--couple); --color2: #FF8E9E; }
+        .category-btn[data-category="friends"]::before { --color1: var(--friends); --color2: #72D1F8; }
+        .category-btn[data-category="fwb"]::before { --color1: var(--fwb); --color2: #FF5C9D; }
+        .category-btn[data-category="married"]::before { --color1: var(--married); --color2: #9D4EDD; }
+        .category-btn[data-category="lgbtq"]::before { --color1: var(--lgbtq); --color2: #A66FF0; }
+        .category-btn[data-category="boys"]::before { --color1: var(--boys); --color2: #6BA4FF; }
+        .category-btn[data-category="dare"]::before { --color1: var(--dare); --color2: #FFD166; }
+        .category-btn[data-category="single"]::before { --color1: var(--single); --color2: #4CE0B2; }
+        
+        /* The Shiny Wheel */
+        .wheel-container {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            margin: 2rem 0;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+        }
+        
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 12px solid white;
+            box-shadow: 
+                inset 0 0 30px rgba(0,0,0,0.1),
+                0 0 0 5px rgba(255,255,255,0.5),
+                0 10px 50px rgba(0,0,0,0.3);
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            transform: rotate(0deg);
+            background: radial-gradient(circle, #fff 40%, #f1f1f1 100%);
+        }
+        
+        .wheel-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            padding-left: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            overflow: hidden;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+            border-top-right-radius: 100%;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        /* Wheel center with shine */
+        .wheel-center {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, #fff 0%, #e0e0e0 100%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            border: 8px solid white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FF6B8B;
+            font-size: 28px;
+            animation: pulse 2s infinite;
+        }
+        
+        .wheel-center::before {
+            content: '🌀';
+            animation: spin 5s linear infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Fancy Pointer */
+        .pointer {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-top: 60px solid #FF6B8B;
+            z-index: 5;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+        }
+        
+        .pointer::after {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -20px;
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            border-radius: 50%;
+            z-index: -1;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        /* Glow Spin Button */
+        .spin-btn {
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(45deg, #FF6B8B, #8338EC);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: 1.5rem 0;
+            box-shadow: 0 10px 20px rgba(255,107,139,0.4);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .spin-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255,255,255,0.3) 0%,
+                rgba(255,255,255,0) 60%
+            );
+            transform: rotate(30deg);
+            z-index: -1;
+            transition: all 0.6s ease;
+        }
+        
+        .spin-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(255,107,139,0.5);
+        }
+        
+        .spin-btn:hover::before {
+            left: 100%;
+        }
+        
+        .spin-btn:disabled {
+            background: #cccccc;
+            transform: none !important;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        
+        /* Fancy Result Container */
+        .result-container {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.3);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            color: #333;
+            text-shadow: none;
+        }
+        
+        .result-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #FF6B8B, #8338EC, #3A86FF);
+        }
+        
+        .result-container.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #FF6B8B;
+        }
+        
+        .result-dare {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Sound Toggle - Floating Bubble */
+        .sound-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: none;
+            color: #FF6B8B;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .sound-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        /* Confetti Celebration */
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            background-color: #f00;
+            opacity: 0;
+            z-index: 1000;
+            animation: confettiFall 3s linear forwards;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+                margin: 1.5rem 0;
+            }
+            
+            .wheel-container {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .category-btn {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.9rem;
+                min-width: 120px;
+            }
+            
+            .spin-btn {
+                padding: 1rem 2rem;
+                font-size: 1.1rem;
+            }
+            
+            .result-container {
+                padding: 1.5rem;
+                margin: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Particles Background -->
+    <div class="particles" id="particles"></div>
+    
+    <h1>Dare Wheel Extravaganza</h1>
+    
+    <div class="category-selector">
+        <button class="category-btn" data-category="couple">Couple 💑</button>
+        <button class="category-btn" data-category="friends">Friends 👯</button>
+        <button class="category-btn" data-category="fwb">FWB 💋</button>
+        <button class="category-btn" data-category="married">Married 💍</button>
+        <button class="category-btn" data-category="lgbtq">LGBTQ+ 🌈</button>
+        <button class="category-btn" data-category="boys">The Boys 🍻</button>
+        <button class="category-btn" data-category="dare">Dare 😈</button>
+        <button class="category-btn" data-category="single">Single 💔</button>
+    </div>
+    
+    <div class="wheel-container">
+        <div class="pointer"></div>
+        <div class="wheel" id="wheel"></div>
+        <div class="wheel-center"></div>
+    </div>
+    
+    <button class="spin-btn" id="spinBtn" disabled>SPIN THE WHEEL 🎡</button>
+    
+    <div class="result-container" id="resultContainer">
+        <div class="result-title">Your Dare:</div>
+        <div class="result-dare" id="resultDare"></div>
+    </div>
+
+    <button class="sound-toggle" id="soundToggle">🔊</button>
+
+    <script>
+        // Dare data for each category (30 dares each)
+        const dares = {
+            couple: [
+                "Kiss your partner for 15 seconds",
+                "Whisper your favorite memory together in their ear",
+                "Give a 2-minute shoulder massage",
+                "Recreate your first date night",
+                "Slow dance to your song",
+                "Gaze into each other's eyes for 1 minute without speaking",
+                "List 5 things you love about your partner",
+                "Plan your dream vacation together",
+                "Exchange pieces of clothing to wear for the day",
+                "Cook a romantic dinner together",
+                "Write love letters to exchange",
+                "Take a bubble bath together",
+                "Give each other new pet names",
+                "Share your favorite physical feature of your partner",
+                "Describe your perfect future in 5 years",
+                "Play thumb war - loser gives a foot rub",
+                "Take a silly couples selfie",
+                "Tell your partner what first attracted you to them",
+                "Whisper your fantasy to your partner",
+                "Recreate your first kiss",
+                "Give each other massages with scented oil",
+                "Share something you've never told anyone else",
+                "Play 20 questions about your relationship",
+                "Draw portraits of each other",
+                "Slow dance to a random song",
+                "Exchange phones for 1 hour",
+                "Plan a surprise date for next weekend",
+                "List 3 things you'll do to improve your relationship",
+                "Watch your wedding/favorite movie together",
+                "Share your most embarrassing moment together"
+            ],
+            friends: [
+                "Do each other's makeup blindfolded",
+                "Take the most ridiculous selfie possible",
+                "Tell your most embarrassing childhood story",
+                "Have a staring contest - loser buys coffee",
+                "Speak in accents for the next 10 minutes",
+                "Swap one item of clothing right now",
+                "Plan your imaginary dream vacation",
+                "Share your most irrational fear",
+                "Try to guess each other's favorite movies",
+                "Recreate a childhood photo",
+                "Text your crush (with permission)",
+                "Do a trust fall in public",
+                "Compliment each other for 30 seconds straight",
+                "Try to lick your own elbow",
+                "Speak only in rhymes for 5 minutes",
+                "Arm wrestle for bragging rights",
+                "Name all 50 states in 1 minute",
+                "Do your best celebrity impressions",
+                "Create a secret handshake",
+                "Have a dance-off to a random song",
+                "Share your most embarrassing middle school memory",
+                "Play never-have-I-ever for 5 minutes",
+                "Try to name 10 car brands in 10 seconds",
+                "Do your best sports commentator impression",
+                "Share your most ridiculous purchase",
+                "Have a dad joke competition",
+                "Try to rap your favorite song",
+                "Play would-you-wrather with ridiculous options",
+                "Take turns giving ridiculous dares",
+                "Describe each other using only emojis"
+            ],
+            fwb: [
+                "Give each other sensual massages",
+                "Play a game of strip poker",
+                "Try a new position you've never done",
+                "Send a sexy text right now",
+                "Take turns blindfolding and teasing",
+                "Share your biggest turn-on",
+                "Try roleplaying a new scenario",
+                "Give each other hickeys in hidden spots",
+                "Take a shower together",
+                "Exchange sexy photos (with consent)",
+                "Try light bondage with household items",
+                "Whisper your dirtiest thought",
+                "Have a makeout session like teenagers",
+                "Try sensory play with ice or feathers",
+                "Give each other lap dances",
+                "Describe your fantasy in detail",
+                "Try phone sex even though you're together",
+                "Play truth or dare just between you two",
+                "Take turns being completely in control",
+                "Experiment with a new location in your place",
+                "Give each other 3 commands to follow tonight",
+                "Try a new toy or accessory",
+                "Take turns being the dominant one",
+                "Share your favorite erogenous zone",
+                "Try a new position from the Kama Sutra",
+                "Give each other sensual kisses for 5 minutes",
+                "Try temperature play with warm/cold objects",
+                "Describe your perfect romantic evening",
+                "Try a new form of foreplay",
+                "Exchange fantasies you've never shared"
+            ],
+            married: [
+                "Recreate your wedding kiss",
+                "Plan a surprise date night",
+                "Give each other foot rubs",
+                "Share what you thought when you first met",
+                "Slow dance to your wedding song",
+                "Write love letters to each other",
+                "List 5 things you love about your marriage",
+                "Pretend you're on your honeymoon",
+                "Give massages with no expectations",
+                "Share your favorite parenting memory",
+                "Plan your dream 10-year anniversary trip",
+                "Try something new in the bedroom",
+                "Exchange chores for a day",
+                "Take a bath or shower together",
+                "Go through your wedding photos",
+                "Tell what you'd do if you won the lottery",
+                "Share what makes you feel most loved",
+                "Try a new recipe together",
+                "Give 30 minutes of undivided attention",
+                "Reminisce about your early dating days",
+                "List 3 ways to improve your marriage",
+                "Watch your wedding video together",
+                "Recreate your first date as married couple",
+                "Plan your retirement dreams together",
+                "Share your favorite family tradition",
+                "Give each other a spa night at home",
+                "Write bucket list items together",
+                "Try a new activity you've never done",
+                "Share your proudest moment of each other",
+                "Plan a weekend getaway for just you two"
+            ],
+            lgbtq: [
+                "Share your coming out story (if comfortable)",
+                "Talk about your first LGBTQ+ role model",
+                "Share your favorite queer movie/show",
+                "Discuss what Pride means to you",
+                "Play 'Guess the LGBTQ+ Icon' from photos",
+                "Share your favorite queer love song",
+                "Discuss your dream LGBTQ+ vacation",
+                "Talk about your favorite queer book",
+                "Share your favorite drag performer",
+                "Discuss the most supportive person in your life",
+                "Play 'Never Have I Ever' LGBTQ+ edition",
+                "Share your favorite queer meme",
+                "Talk about your first Pride experience",
+                "Discuss your favorite LGBTQ+ business",
+                "Share your favorite queer fashion trend",
+                "Talk about an LGBTQ+ historical figure",
+                "Share your favorite queer podcast",
+                "Discuss your favorite queer slang",
+                "Share your favorite LGBTQ+ influencer",
+                "Talk about your hopes for the community",
+                "Share your favorite queer artist",
+                "Discuss LGBTQ+ representation in media",
+                "Share your coming-to-terms moment",
+                "Talk about your queer awakening",
+                "Share your favorite LGBTQ+ charity",
+                "Discuss your favorite Pride memory",
+                "Share your favorite queer love story",
+                "Talk about LGBTQ+ rights progress",
+                "Share your favorite queer-owned brand",
+                "Discuss how to be a better ally"
+            ],
+            boys: [
+                "Arm wrestle the person to your left",
+                "Do your best impression of each other",
+                "Chug a non-alcoholic drink in one go",
+                "Share your most embarrassing gym story",
+                "Have a burping contest",
+                "Try to name all NFL teams in 1 minute",
+                "Do pushups until you fail",
+                "Share your worst date story",
+                "Have a staring contest with no blinking",
+                "Try to rap your favorite song",
+                "Play 'Would You Rather' with wild options",
+                "Share your most ridiculous purchase",
+                "Have a dad joke competition",
+                "Try to name 10 car brands in 10 seconds",
+                "Do your best sports commentator impression",
+                "Share your most bro moment",
+                "Have a fake argument about sports stats",
+                "Try to name all Fast & Furious movies",
+                "Do your best action movie one-liner",
+                "Share your most ridiculous childhood dare",
+                "Have a fake wrestling match",
+                "Try to name 5 UFC champions",
+                "Do your best Arnold Schwarzenegger impression",
+                "Share your most embarrassing haircut",
+                "Have a fake sports debate",
+                "Try to name all Avengers in order",
+                "Do your best sports celebration",
+                "Share your worst fashion phase",
+                "Have a fake auction for your friends",
+                "Try to name 10 beers in 10 seconds"
+            ],
+            dare: [
+                "Do your best chicken dance",
+                "Sing the national anthem in a silly voice",
+                "Let someone draw on your face with marker",
+                "Eat a spoonful of hot sauce",
+                "Wear your clothes inside out for an hour",
+                "Text your mom 'I'm pregnant' then explain",
+                "Let someone style your hair however they want",
+                "Try to lick your nose",
+                "Do 20 pushups right now",
+                "Speak in a British accent for 10 minutes",
+                "Let the group choose a new hairstyle",
+                "Eat a food combination the group chooses",
+                "Dance with no music for 1 minute",
+                "Wear socks on your hands for an hour",
+                "Let someone post on your social media",
+                "Do impressions of everyone in the room",
+                "Try to breakdance for 30 seconds",
+                "Let the group give you a new nickname",
+                "Try to touch your tongue to your elbow",
+                "Sing instead of speak for 5 minutes",
+                "Let someone give you a makeover",
+                "Eat a food blindfolded",
+                "Do your best celebrity walk",
+                "Let the group dress you in their clothes",
+                "Try to name 10 countries in 10 seconds",
+                "Do your best animal impressions",
+                "Let someone style your outfit for the day",
+                "Try to juggle 3 objects",
+                "Do your best runway walk",
+                "Let the group choose your profile picture"
+            ],
+            single: [
+                "Text your ex 'hey stranger'",
+                "Create your perfect partner using celebrities",
+                "Share your worst dating app experience",
+                "Describe your dream first date",
+                "List your top 3 celebrity crushes",
+                "Share your most embarrassing dating story",
+                "Show your most recent selfie (no deleting)",
+                "Tell the group your biggest turn-off",
+                "Describe your perfect kiss",
+                "Share your dating app bio with the group",
+                "Let the group set up your dating profile",
+                "Call a random number and flirt for 30 sec",
+                "Share your wildest dating fantasy",
+                "Tell your 'body count' using your fingers",
+                "Describe what you look for in a partner",
+                "Share your best pickup line",
+                "Show the last text you sent to a crush",
+                "Let the group write your next dating message",
+                "Share your relationship deal-breakers",
+                "Describe your most awkward date",
+                "Share your worst breakup story",
+                "Let the group analyze your texting style",
+                "Share your dating red flags",
+                "Describe your perfect partner in 3 words",
+                "Share your most ridiculous dating standard",
+                "Let the group plan your next date",
+                "Share your best first date idea",
+                "Describe your dating app pet peeves",
+                "Share your funniest rejection story",
+                "Let the group judge your dating profile"
+            ]
+        };
+
+        // Color schemes for wheel sections
+        const wheelColors = {
+            couple: {
+                evenBg: 'var(--couple)',
+                evenText: '#fff',
+                oddBg: '#FF8E9E',
+                oddText: '#fff'
+            },
+            friends: {
+                evenBg: 'var(--friends)',
+                evenText: '#fff',
+                oddBg: '#72D1F8',
+                oddText: '#fff'
+            },
+            fwb: {
+                evenBg: 'var(--fwb)',
+                evenText: '#fff',
+                oddBg: '#FF5C9D',
+                oddText: '#fff'
+            },
+            married: {
+                evenBg: 'var(--married)',
+                evenText: '#fff',
+                oddBg: '#9D4EDD',
+                oddText: '#fff'
+            },
+            lgbtq: {
+                evenBg: 'var(--lgbtq)',
+                evenText: '#fff',
+                oddBg: '#A66FF0',
+                oddText: '#fff'
+            },
+            boys: {
+                evenBg: 'var(--boys)',
+                evenText: '#fff',
+                oddBg: '#6BA4FF',
+                oddText: '#fff'
+            },
+            dare: {
+                evenBg: 'var(--dare)',
+                evenText: '#fff',
+                oddBg: '#FFD166',
+                oddText: '#fff'
+            },
+            single: {
+                evenBg: 'var(--single)',
+                evenText: '#fff',
+                oddBg: '#4CE0B2',
+                oddText: '#fff'
+            }
+        };
+
+        // Game state
+        let selectedCategory = null;
+        let isSpinning = false;
+        let currentRotation = 0;
+        let soundEnabled = true;
+        
+        // DOM elements
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const spinBtn = document.getElementById('spinBtn');
+        const wheel = document.getElementById('wheel');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultDare = document.getElementById('resultDare');
+        const soundToggle = document.getElementById('soundToggle');
+        const particlesContainer = document.getElementById('particles');
+        
+        // Create floating particles
+        function createParticles() {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.width = Math.random() * 10 + 5 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.animationDuration = Math.random() * 10 + 10 + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            particlesContainer.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 15000);
+        }
+        
+        // Create particles periodically
+        setInterval(createParticles, 300);
+        
+        // Audio elements
+        const spinSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1930.mp3');
+        const stopSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-win-1931.mp3');
+        
+        // Set audio loop and volume
+        spinSound.loop = true;
+        spinSound.volume = 0.5;
+        stopSound.volume = 0.7;
+        
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#FF6B8B', '#8338EC', '#3A86FF', '#FFBE0B', '#06D6A0'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 15 + 5 + 'px';
+                confetti.style.height = Math.random() * 15 + 5 + 'px';
+                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+        
+        // Initialize wheel sections
+        function createWheelSections(category) {
+            wheel.innerHTML = '';
+            const dareList = dares[category];
+            const sectionAngle = 360 / dareList.length;
+            const colors = wheelColors[category];
+            
+            dareList.forEach((dare, index) => {
+                const section = document.createElement('div');
+                section.className = 'wheel-section';
+                section.textContent = dare;
+                section.style.transform = `rotate(${index * sectionAngle}deg)`;
+                
+                // Apply category-specific colors
+                if (index % 2 === 0) {
+                    section.style.backgroundColor = colors.evenBg;
+                    section.style.color = colors.evenText;
+                } else {
+                    section.style.backgroundColor = colors.oddBg;
+                    section.style.color = colors.oddText;
+                }
+                
+                wheel.appendChild(section);
+            });
+        }
+        
+        // Handle category selection
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (isSpinning) return;
+                
+                categoryBtns.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedCategory = btn.dataset.category;
+                createWheelSections(selectedCategory);
+                spinBtn.disabled = false;
+                resultContainer.classList.remove('show');
+            });
+        });
+        
+        // Handle spin button
+        spinBtn.addEventListener('click', () => {
+            if (!selectedCategory || isSpinning) return;
+            
+            isSpinning = true;
+            spinBtn.disabled = true;
+            resultContainer.classList.remove('show');
+            
+            // Play spinning sound if enabled
+            if (soundEnabled) {
+                spinSound.currentTime = 0;
+                spinSound.play();
+            }
+            
+            // Random rotation (4-8 full rotations plus a random section)
+            const dareList = dares[selectedCategory];
+            const sectionAngle = 360 / dareList.length;
+            const randomSection = Math.floor(Math.random() * dareList.length);
+            const extraRotation = randomSection * sectionAngle;
+            const fullRotations = 4 * 360 + Math.floor(Math.random() * 4 * 360);
+            const totalRotation = currentRotation + fullRotations + extraRotation;
+            
+            wheel.style.transform = `rotate(${-totalRotation}deg)`;
+            currentRotation = totalRotation;
+            
+            // Show result after spinning
+            setTimeout(() => {
+                isSpinning = false;
+                spinBtn.disabled = false;
+                resultDare.textContent = dareList[randomSection];
+                resultContainer.classList.add('show');
+                
+                // Play stop sound if enabled
+                if (soundEnabled) {
+                    spinSound.pause();
+                    stopSound.currentTime = 0;
+                    stopSound.play();
+                }
+                
+                // Create confetti effect
+                createConfetti();
+                
+                // Scroll to result if needed
+                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 4000);
+        });
+        
+        // Sound toggle functionality
+        soundToggle.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+            
+            // If spinning and sound was just disabled, stop the sound
+            if (isSpinning && !soundEnabled) {
+                spinSound.pause();
+            }
+        });
+    </script>
+</body>
+</html>
